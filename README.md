@@ -18,7 +18,7 @@ Go to that folder using the change directory command ```cd Korblab_NMES_Review``
 3. You can modify and create files there.
   - Please do not create many versions of the same file, just modify the file you want to modify. </br>
   The whole point of git is to automatize the version control.
-  - Try to make small changes, test them, and when they are working.
+  - Try to make small changes, test them, and when they are working, go to step 4.
 
 4. When you are done making the change, check the status of your local copy of the repository with the command below. </br>
 It will show you modified files and files that are not in version control (untracked) in red.
