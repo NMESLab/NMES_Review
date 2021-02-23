@@ -145,6 +145,5 @@ PWM_dutyCycleRMSCurrent <- (1/sqrt(dutyCycle_D)) * PWM_dutyCycleAverageCurrent
 PWM_dutyCycleRMSCurrent
 ```
 
-
-
+### Comparison of the formulas to O'connor
 
