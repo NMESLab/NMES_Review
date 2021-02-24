@@ -9,7 +9,7 @@ A collection of any program related to the NMES review paper
   - If you are not comfortable using the command line try using [Sourcetree](https://www.sourcetreeapp.com/)
 
 ```
-git clone https://github.com/MonicaPH/Korblab_NMES_Review.git
+git clone https://github.com/KorbLab/Korblab_NMES_Review.git
 ```
 
 2. The command in 1) will create a new folder with the repository inside. </br>
