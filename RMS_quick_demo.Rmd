@@ -147,4 +147,29 @@ PWM_dutyCycleRMSCurrent
 
 ### Comparison of the formulas to O'connor
 
-O'Connor 2019
+O'Connor 2020 used the following formula to calculate the RMS:
+
+$$
+i_{rms} = I \sqrt{2 f \tau}
+$$
+Where I is the amplitude of the current in mA, and the RMS current is also in mA. f is the pulse frequency in Hz, and tau is the phase duration in seconds.
+
+According to the examples they give on pp. 6:
+
+```{r}
+# Example 1
+currentAmplitude_I <- 100 # in ms
+pulseFrequency_f <- 50 # in Hz
+phaseDuration_tau <- 500 * 1e-3 # in s
+currentRMS_I <- currentAmplitude_I * sqrt(2*pulseFrequency_f*phaseDuration_tau)
+currentRMS_I
+
+# Example 2
+currentAmplitude_I <- 100 # in ms
+pulseFrequency_f <- 20 # in Hz
+phaseDuration_tau <- 500 * 1e-3 # in s
+currentRMS_I <- currentAmplitude_I * sqrt(2*pulseFrequency_f*phaseDuration_tau)
+currentRMS_I
+```
+
+In their paper description they say that the answers should be 
