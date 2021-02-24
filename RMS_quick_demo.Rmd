@@ -15,6 +15,7 @@ library(plotly) # for interactive plotting
 
 ## Aim
 This notebook demonstrates the calculation of RMS using the SAE guideline.
+Nicely done Monica
 
 ## Calculation
 
