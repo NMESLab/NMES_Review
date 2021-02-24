@@ -147,3 +147,4 @@ PWM_dutyCycleRMSCurrent
 
 ### Comparison of the formulas to O'connor
 
+O'Connor 2019
