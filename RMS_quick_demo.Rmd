@@ -15,7 +15,6 @@ library(plotly) # for interactive plotting
 
 ## Aim
 This notebook demonstrates the calculation of RMS using the SAE guideline.
-Nicely done Monica
 
 ## Calculation
 
@@ -161,16 +160,28 @@ According to the examples they give on pp. 6:
 # Example 1
 currentAmplitude_I <- 100 # in ms
 pulseFrequency_f <- 50 # in Hz
-phaseDuration_tau <- 500 * 1e-3 # in s
+phaseDuration_tau <- 500 * 1e-6 # in s
 currentRMS_I <- currentAmplitude_I * sqrt(2*pulseFrequency_f*phaseDuration_tau)
 currentRMS_I
 
 # Example 2
 currentAmplitude_I <- 100 # in ms
 pulseFrequency_f <- 20 # in Hz
-phaseDuration_tau <- 500 * 1e-3 # in s
+phaseDuration_tau <- 500 * 1e-6 # in s
 currentRMS_I <- currentAmplitude_I * sqrt(2*pulseFrequency_f*phaseDuration_tau)
 currentRMS_I
 ```
 
-In their paper description they say that the answers should be 
+In their paper description they say that the answers should be 22.3 mA and 14.1 mA respectively, which coincides with the calculation above.
+
+Now testing the same formula with the parameters used for the SAE and the PWM calculations:
+```{r}
+# With the parameters above
+currentAmplitude_I <- 18 # in ms
+pulseFrequency_f <- 1 / (20 * 1e-03) # in Hz
+phaseDuration_tau <- 20 * 1e-03 # in s
+currentRMS_I <- currentAmplitude_I * sqrt(2*pulseFrequency_f*phaseDuration_tau)
+currentRMS_I
+```
+
+The result seems higher, but since they do not consider an off period in between each biphasic pulse, the RMS might be overshooting.
