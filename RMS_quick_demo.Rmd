@@ -7,7 +7,7 @@ output:
     df_print: paged
 ---
 
-```{r warning=FALSE}
+```{r warning = FALSE, message = FALSE}
 library(tidyverse) 
 library(plotly) # for interactive plotting
 ```
@@ -56,14 +56,14 @@ Initializing a variable with the pre-defined parameters characteristics
 # Parameters
 i_amp <- 18   # Instant current amplitude
 pulseWidth_PW <- 50 * 1e-06 # parameter in microseconds, resulting value in seconds
-pulseNumber_PN <- 20 * 1e-03 # parameter in in milliseconds, resulting value in seconds
+cycleDuration <- 20 * 1e-03 # parameter in in milliseconds, resulting value in seconds
 electrodeArea <- 1.44  # Area of the electrode in cm^2
 samplingRate <- 100000  # in Hz: 100 000 data points every 1 second
 pulseTrainDuration_PT <- 2 # in seconds
 
 # Calculated parameters
-delayBetweenPulses_PD <- pulseNumber_PN - (2 * pulseWidth_PW) # in seconds
-numberPulsesInTrain <- pulseTrainDuration_PT / pulseNumber_PN # it must be an integer result for simplicity
+delayBetweenPulses_PD <- cycleDuration - (2 * pulseWidth_PW) # in seconds
+numberPulsesInTrain <- pulseTrainDuration_PT / cycleDuration # it must be an integer result for simplicity
 
 # Wave
 currentWave <- rep(
@@ -91,7 +91,7 @@ plot # display the plot
 
 Extracting one cycle and plotting it:
 ```{r}
-oneCycleCurrent <- currentWave_df[1:(pulseNumber_PN * samplingRate),]
+oneCycleCurrent <- currentWave_df[1:(cycleDuration * samplingRate),]
 
 plot <- ggplot(data=oneCycleCurrent, aes(x=sampleNumber, y=currentWave)) +
   geom_line(color="red")
@@ -102,7 +102,7 @@ plot # display the plot
 
 #### Using SAE:
 ```{r}
-SAE_rms_oneCycleCurrent <- sqrt(sum(oneCycleCurrent$currentWave^2) / (pulseNumber_PN*samplingRate))
+SAE_rms_oneCycleCurrent <- sqrt(sum(oneCycleCurrent$currentWave^2) / (cycleDuration*samplingRate))
 SAE_rms_oneCycleCurrent
 
 # Which is the same as:
@@ -113,10 +113,10 @@ SAE_rms_oneCycleCurrent
 Checking manually, given our knowledge of the waveform:
 ```{r}
 # Squaring after calculating the area:
-sqrt( ((2*pulseWidth_PW*i_amp)^2) / (pulseNumber_PN) )
+sqrt( ((2*pulseWidth_PW*i_amp)^2) / (cycleDuration) )
 
 # Squaring sample by sample
-sqrt( ((2*pulseWidth_PW*i_amp^2)) / (pulseNumber_PN) )
+sqrt( ((2*pulseWidth_PW*i_amp^2)) / (cycleDuration) )
 ```
 So it seems it is better not to use the area intuition, because it will lead to a different value.
 
@@ -134,7 +134,7 @@ plot # display the plot
 
 Calculation according to the aforementioned formula:
 ```{r}
-dutyCycle_D <- (2*pulseWidth_PW) / pulseNumber_PN
+dutyCycle_D <- (2*pulseWidth_PW) / cycleDuration
 PWM_dutyCycleAverageCurrent <- dutyCycle_D * i_amp
 PWM_dutyCycleAverageCurrent
 ```
@@ -143,6 +143,35 @@ Checking the transformation from average to RMS:
 ```{r}
 PWM_dutyCycleRMSCurrent <- (1/sqrt(dutyCycle_D)) * PWM_dutyCycleAverageCurrent
 PWM_dutyCycleRMSCurrent
+```
+
+
+### Surface area
+Finally, the RMS per cycle can be simply divided by the electrode area, with either of the values
+```{r}
+PWM_dutyCycleRMSCurrent_per_area <- PWM_dutyCycleRMSCurrent / electrodeArea
+PWM_dutyCycleRMSCurrent_per_area
+
+SAE_rms_oneCycleCurrent_per_area <- SAE_rms_oneCycleCurrent / electrodeArea
+SAE_rms_oneCycleCurrent_per_area
+```
+
+This is the power per cm2. When expressing this in Watts per m^2, it is referred-to as *Surface Power Density*
+```{r}
+electrodeArea_m2 <- electrodeArea / (100^2)
+SAE_rms_oneCycleCurrent_per_area_m2 <- SAE_rms_oneCycleCurrent / electrodeArea_m2
+SAE_rms_oneCycleCurrent_per_area_m2
+```
+
+
+### Note regarding safety and the whole pulse train duration
+The above calculations were made only per one cycle of the signal. 
+If more than one pulse injected to the participant's, the RMS for the whole pulse train should be calculated.
+If the pulse shape does not change from one cycle to the other, the RMS remains constant during the whole stimulation:
+
+```{r}
+pulseTrain_TotalRMS <- sqrt(mean(currentWave_df$currentWave^2))
+pulseTrain_TotalRMS
 ```
 
 ### Comparison of the formulas to O'connor
@@ -173,6 +202,9 @@ currentRMS_I
 ```
 
 In their paper description they say that the answers should be 22.3 mA and 14.1 mA respectively, which coincides with the calculation above.
+
+
+####*The section below needs to be checked according to O'Connor's email answer*
 
 Now testing the same formula with the parameters used for the SAE and the PWM calculations:
 ```{r}
