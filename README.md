@@ -61,4 +61,49 @@ git pull
 "push" your locally commited changes as in step 7.
 
 
-### [Git basics](https://rogerdudler.github.io/git-guide/)
+## How to create new branches
+- In the terminal, go to your git directory.
+- Type:
+```
+git checkout -b <branch_name> origin/<branch_name>
+```
+Where <branch_name> is the name of the branch you want to create.
+
+origin/<branch_name> creates a connection/mapping between your local branch
+and the branch on GitHub.
+
+If you forget to specify origin/<branch_name>, you will see an error
+when you try to push the branch the first time that will look like the following:
+
+```
+fatal: The current branch <branch_name> has no upstream branch.
+To push the current branch and set the remote as upstream, use
+
+    git push --set-upstream origin <branch_name>
+```
+
+You can simply copy and execute the recommended line to fix the error.
+
+
+## How to move between branches
+- To go back to the master branch
+
+```
+git checkout main
+```
+
+- To go to a particular branch you already created locally
+
+```
+git checkout <branch_name>
+```
+
+- To go to a branch that exists remotely but wasn't checked out locally yet
+
+```
+git checkout <branch_name> origin/<branch_name>
+```
+
+
+## Check for a quick Git intro
+[Git basics](https://rogerdudler.github.io/git-guide/)
