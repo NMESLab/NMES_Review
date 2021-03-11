@@ -92,7 +92,6 @@ cycleDuration <- 20 # parameter in in milliseconds
 # cycleDuration <- 1 / cycleFrequency # Result in seconds
 
 # Call the function
-# The output is as: I_rms_oneCycleCurrent, PWM_dutyCycleAverageCurrent, I_rms_oneCycleCurrent_per_area
 NMES_power(methodRMS, i_amp, pulseWidth_PW, cycleDuration, electrodeArea, samplingRate, pulseTrainDuration_PT)
 
 
