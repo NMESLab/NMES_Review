@@ -113,71 +113,67 @@ ui <- fluidPage(
 
     # Application title
     titlePanel("NMES parameter calculator"),
-
-    # Sidebar with a slider input for number of bins 
-    sidebarLayout(
-        sidebarPanel(
-            numericInput(inputId = "i_amp",
-                         label = "Current amplitude of the pulses:",
-                         value = 18),
-            
-            numericInput(inputId = "pulseWidth_PW",
-                         label = "Pulse Width in microseconds:",
-                         value = 50),
-            
-            numericInput(inputId = "electrodeArea",
-                         label = "Electrode Area in cm2:",
-                         value = 1.44),
-            
-            numericInput(inputId = "pulseTrainDuration_PT",
-                         label = "Duration of the pulse train in seconds:",
-                         value = 1),
-            
-            numericInput(inputId = "samplingRate",
-                         label = "Sampling rate for plotting:",
-                         value = 100000),
-            
-            radioButtons(
-                inputId = "duration_freq_cycle_rb",
-                label = "Choose a your preferred input:",
-                choices = c("Cycle_duration", "Cycle_frequency"),
-                selected = "Cycle_duration",
-                inline = TRUE
-            ),
-            
-            numericInput(inputId = "Cycle",
-                         label = "Input preferred cycle time value:",
-                         value = 20),
-            
-            radioButtons(
-                inputId = "methodRMS_rb",
-                label = "Choose a method:",
-                choices = c("PWM", "SAE"),
-                selected = "SAE",
-                inline = TRUE
-            ),
-            
-            # sliderInput("plotScale",
-            #             "Number of bins:",
-            #             min = 1,
-            #             max = 50,
-            #             value = 30),
-            
-            # actionButton("goButton","Calculate")
+    
+    fluidRow(
+        
+        # Sidebar 
+        column(4,
+               wellPanel(
+                   numericInput(inputId = "i_amp",
+                                label = "Current amplitude of the pulses:",
+                                value = 18),
+                   
+                   numericInput(inputId = "pulseWidth_PW",
+                                label = "Pulse Width in microseconds:",
+                                value = 50),
+                   
+                   numericInput(inputId = "electrodeArea",
+                                label = "Electrode Area in cm2:",
+                                value = 1.44),
+                   
+                   numericInput(inputId = "pulseTrainDuration_PT",
+                                label = "Duration of the pulse train in seconds:",
+                                value = 1),
+                   
+                   numericInput(inputId = "samplingRate",
+                                label = "Sampling rate for plotting:",
+                                value = 100000),
+                   
+                   radioButtons(
+                       inputId = "duration_freq_cycle_rb",
+                       label = "Choose a your preferred input:",
+                       choices = c("Cycle_duration", "Cycle_frequency"),
+                       selected = "Cycle_duration",
+                       inline = TRUE
+                   ),
+                   
+                   numericInput(inputId = "Cycle",
+                                label = "Input preferred cycle time value:",
+                                value = 20),
+                   
+                   radioButtons(
+                       inputId = "methodRMS_rb",
+                       label = "Choose a method:",
+                       choices = c("PWM", "SAE"), # Sample by sample
+                       selected = "SAE",
+                       inline = TRUE
+                   )
+               )       
         ),
+        
+        # MainPanel
+        column(8,
+              
+               h4("Calculation results:"),
+               verbatimTextOutput("summary"),
 
-        # Show a plot of the generated distribution
-        mainPanel(
-            h4("Calculation results:"),
-            verbatimTextOutput("summary"),
-            
-            h4("Visualization of the train of pulses:"),
-            plotlyOutput("NMESplotTrain"), # plotlyOutput vs plotOutput
-            
-            h4("Visualization of one pulse:"),
-            plotlyOutput("NMESplot")
-
+               h4("Visualization of one pulse:"),
+               plotlyOutput("NMESplot"),
+               
+               h4("Visualization of the train of pulses:"),
+               plotlyOutput("NMESplotTrain") # plotlyOutput vs plotOutput
         )
+    
     )
 )
 
