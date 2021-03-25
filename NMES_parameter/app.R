@@ -65,7 +65,7 @@ constructNMESwave <- function(wave_parameters) {
 }
 
 NMES_power <- function(methodRMS,i_amp,pulseWidth_PW,cycleDuration,electrodeArea,samplingRate,pulseTrainDuration_PT,oneCycleCurrent) {
-    # methodRMS  # PWM or SAE
+    # methodRMS  # PWM or Sample-wise
     # i_amp  # Instant current amplitude
     # pulseWidth_PW # in seconds
     # cycleDuration # in seconds
@@ -74,7 +74,7 @@ NMES_power <- function(methodRMS,i_amp,pulseWidth_PW,cycleDuration,electrodeArea
     # pulseTrainDuration_PT # in seconds
     
     # Method selection to calculate RMS
-    if (methodRMS == "SAE") {
+    if (methodRMS == "Sample-wise") {
         I_rms_oneCycleCurrent <- sqrt(mean(oneCycleCurrent$currentWave^2))
         PWM_dutyCycleAverageCurrent <- NA
     }
@@ -100,7 +100,7 @@ NMES_power <- function(methodRMS,i_amp,pulseWidth_PW,cycleDuration,electrodeArea
     power_surface <- data.frame (I_rms  = I_rms_oneCycleCurrent,
                                  PWM_dutyCycleAverageCurrent = PWM_dutyCycleAverageCurrent,
                                  I_rms_per_area = I_rms_oneCycleCurrent_per_area
-    )
+                                )
     return(power_surface)
 }
 
@@ -117,10 +117,10 @@ ui <- fluidPage(
     fluidRow(
         
         # Sidebar 
-        column(4,
+        column(3,
                wellPanel(
                    numericInput(inputId = "i_amp",
-                                label = "Current amplitude of the pulses:",
+                                label = "Current amplitude of the pulses in mA:",
                                 value = 18),
                    
                    numericInput(inputId = "pulseWidth_PW",
@@ -154,24 +154,56 @@ ui <- fluidPage(
                    radioButtons(
                        inputId = "methodRMS_rb",
                        label = "Choose a method:",
-                       choices = c("PWM", "SAE"), # Sample by sample
-                       selected = "SAE",
+                       choices = c("PWM", "Sample-wise"), # Sample by sample
+                       selected = "Sample-wise",
                        inline = TRUE
                    )
                )       
         ),
         
         # MainPanel
-        column(8,
-              
-               h4("Calculation results:"),
-               verbatimTextOutput("summary"),
+        column(9,
+               fluidRow(
+                   h4("Calculation results:"),
+                   column(3,
+                          p("Delay between pulses [s]:"),
+                          verbatimTextOutput("delay_out"),
+                          p()
+                        ),
+                   column(3,
+                          p("I_rms [mA]:"),
+                          verbatimTextOutput("I_rms_out"),
+                          p()
+                        ),
+                   column(3,
+                          p("PWM current per DutyCycle [mA]:"),
+                          verbatimTextOutput("PWM_dutyCycleAverageCurrent_out"),
+                          p()
+                        ),
+                   column(3,
+                          p("I_rms per electrode area [mA/cm2]:"),
+                          verbatimTextOutput("I_rms_per_area_out"),
+                          p()
+                        )
+               ),
 
-               h4("Visualization of one pulse:"),
-               plotlyOutput("NMESplot"),
+               fluidRow(
+                   column(4,
+                          h4("Biphasic pulse:"),
+                          plotlyOutput("NMESplot_zoomin")
+                   ),
+                   column(5,
+                          h4("Biphasic pulse and off period:"),
+                          plotlyOutput("NMESplot")
+                          )
+               ),
                
-               h4("Visualization of the train of pulses:"),
-               plotlyOutput("NMESplotTrain") # plotlyOutput vs plotOutput
+               
+               fluidRow(
+                   h4("Train of pulses:"),
+                   plotlyOutput("NMESplotTrain") # plotlyOutput vs plotOutput
+               ),
+               
         )
     
     )
@@ -193,13 +225,36 @@ server <- function(input, output) {
     })
     
     # Results
-    output$summary <- renderPrint({
+    output$delay_out <- renderText({
+        wave_parameters <- precalculation()
+        wave_parameters$delayBetweenPulses_PD
+    })
+    
+    output$I_rms_out <- renderPrint({
         wave_parameters <- precalculation()
         waves <- constructNMESwave(wave_parameters)
         currentWave_df <- waves[[1]]
         oneCycleCurrent <- waves[[2]]
         power_surface <- NMES_power(input$methodRMS_rb,wave_parameters$i_amp,wave_parameters$pulseWidth_PW,wave_parameters$cycleDuration,wave_parameters$electrodeArea,wave_parameters$samplingRate,wave_parameters$pulseTrainDuration_PT,oneCycleCurrent)
-        head(power_surface)
+        power_surface$I_rms
+    })
+    
+    output$PWM_dutyCycleAverageCurrent_out <- renderPrint({
+        wave_parameters <- precalculation()
+        waves <- constructNMESwave(wave_parameters)
+        currentWave_df <- waves[[1]]
+        oneCycleCurrent <- waves[[2]]
+        power_surface <- NMES_power(input$methodRMS_rb,wave_parameters$i_amp,wave_parameters$pulseWidth_PW,wave_parameters$cycleDuration,wave_parameters$electrodeArea,wave_parameters$samplingRate,wave_parameters$pulseTrainDuration_PT,oneCycleCurrent)
+        power_surface$PWM_dutyCycleAverageCurrent
+    })
+    
+    output$I_rms_per_area_out <- renderPrint({
+        wave_parameters <- precalculation()
+        waves <- constructNMESwave(wave_parameters)
+        currentWave_df <- waves[[1]]
+        oneCycleCurrent <- waves[[2]]
+        power_surface <- NMES_power(input$methodRMS_rb,wave_parameters$i_amp,wave_parameters$pulseWidth_PW,wave_parameters$cycleDuration,wave_parameters$electrodeArea,wave_parameters$samplingRate,wave_parameters$pulseTrainDuration_PT,oneCycleCurrent)
+        power_surface$I_rms_per_area
     })
     
     output$NMESplotTrain <- renderPlotly({ # renderPlotly vs renderPlot
@@ -223,6 +278,19 @@ server <- function(input, output) {
         
         plot <- ggplot(data=oneCycleCurrent, aes(x=sampleNumber, y=currentWave)) +
               geom_line(color="red")
+        ggplotly(plot) 
+    })
+    
+    output$NMESplot_zoomin <- renderPlotly({
+        wave_parameters <- precalculation()
+        waves <- constructNMESwave(wave_parameters)
+        
+        currentWave_df <- waves[[1]]
+        oneCycleCurrent <- waves[[2]]
+        index <- oneCycleCurrent$currentWave != 0
+        
+        plot <- ggplot(data=oneCycleCurrent[index,], aes(x=sampleNumber, y=currentWave)) +
+            geom_line(color="red")
         ggplotly(plot) 
     })
 }
