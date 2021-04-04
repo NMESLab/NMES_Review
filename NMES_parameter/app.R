@@ -266,7 +266,7 @@ server <- function(input, output) {
         currentWave_df$time_ms <- (currentWave_df$sampleNumber / wave_parameters$samplingRate) * 1e3
         
         plot <- ggplot(data=currentWave_df, aes(x=time_ms, y=currentWave)) +
-          geom_line(color="blue")
+          geom_step(color="blue")
         ggplotly(plot) # Turn to an interactive plot
     })
 
@@ -279,7 +279,7 @@ server <- function(input, output) {
         oneCycleCurrent$time_ms <- (oneCycleCurrent$sampleNumber / wave_parameters$samplingRate) * 1e3
         
         plot <- ggplot(data=oneCycleCurrent, aes(x=time_ms, y=currentWave)) +
-              geom_line(color="red")
+            geom_step(color="red")
         ggplotly(plot) 
     })
     
@@ -293,7 +293,7 @@ server <- function(input, output) {
         oneCycleCurrent$time_ms <- (oneCycleCurrent$sampleNumber / wave_parameters$samplingRate) * 1e3
         
         plot <- ggplot(data=oneCycleCurrent[index,], aes(x=time_ms, y=currentWave)) +
-            geom_line(color="red")
+            geom_step(color="red")
         ggplotly(plot) 
     })
 }
