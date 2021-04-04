@@ -117,7 +117,7 @@ ui <- fluidPage(
     fluidRow(
         
         # Sidebar 
-        column(3,
+        column(4,
                wellPanel(
                    numericInput(inputId = "i_amp",
                                 label = "Current amplitude of the pulses in mA:",
@@ -148,7 +148,7 @@ ui <- fluidPage(
                    ),
                    
                    numericInput(inputId = "Cycle",
-                                label = "Input preferred cycle time value:",
+                                label = "Input value:",
                                 value = 20),
                    
                    radioButtons(
@@ -157,12 +157,16 @@ ui <- fluidPage(
                        choices = c("PWM", "Sample-wise"), # Sample by sample
                        selected = "Sample-wise",
                        inline = TRUE
-                   )
+                   ),
+                   
+                   p(),
+                   h4("Graphical representation of the stimulation parameters:"),
+                   img(src = "NameConventionWBG.png", width = "100%")
                )       
         ),
         
         # MainPanel
-        column(9,
+        column(8,
                fluidRow(
                    h4("Calculation results:"),
                    column(3,
