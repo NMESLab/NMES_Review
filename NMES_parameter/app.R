@@ -51,6 +51,9 @@ constructNMESwave <- function(wave_parameters) {
         wave_parameters$numberPulsesInTrain
     )
     
+    # Adding a zero to fix the plot artefact
+    currentWave <- c(0, currentWave)
+    
     # Timeline
     sampleNumber <- c(1:length(currentWave))
     
@@ -204,12 +207,11 @@ ui <- fluidPage(
                           verbatimTextOutput("I_rms_per_area_mm2_out"),
                           p()
                    ),
-                   
-                   column(3,
-                          p("Phase charge [C/phase]:"),
-                          verbatimTextOutput("phase_charge_out"),
-                          p()
-                   ),
+                   # column(3,
+                   #        p("Phase charge [C/phase]:"),
+                   #        verbatimTextOutput("phase_charge_out"),
+                   #        p()
+                   # ),
                    column(3,
                           p("Phase charge density [C/cm2/phase]:"),
                           verbatimTextOutput("phase_charge_density_out"),
@@ -296,14 +298,14 @@ server <- function(input, output) {
         power_surface$I_rms_per_area_mm2
     })
     
-    output$phase_charge_out <- renderPrint({
-        wave_parameters <- precalculation()
-        waves <- constructNMESwave(wave_parameters)
-        currentWave_df <- waves[[1]]
-        oneCycleCurrent <- waves[[2]]
-        power_surface <- NMES_power(input$methodRMS_rb,wave_parameters$i_amp,wave_parameters$pulseWidth_PW,wave_parameters$cycleDuration,wave_parameters$electrodeArea,wave_parameters$samplingRate,wave_parameters$pulseTrainDuration_PT,oneCycleCurrent)
-        power_surface$phase_charge
-    })
+    # output$phase_charge_out <- renderPrint({
+    #     wave_parameters <- precalculation()
+    #     waves <- constructNMESwave(wave_parameters)
+    #     currentWave_df <- waves[[1]]
+    #     oneCycleCurrent <- waves[[2]]
+    #     power_surface <- NMES_power(input$methodRMS_rb,wave_parameters$i_amp,wave_parameters$pulseWidth_PW,wave_parameters$cycleDuration,wave_parameters$electrodeArea,wave_parameters$samplingRate,wave_parameters$pulseTrainDuration_PT,oneCycleCurrent)
+    #     power_surface$phase_charge
+    # })
     
     output$phase_charge_density_out <- renderPrint({
         wave_parameters <- precalculation()
@@ -346,7 +348,9 @@ server <- function(input, output) {
         
         currentWave_df <- waves[[1]]
         oneCycleCurrent <- waves[[2]]
-        index <- oneCycleCurrent$currentWave != 0
+        index <- which(oneCycleCurrent$currentWave != 0)
+        
+        index <- c((index[1]-2):index[length(index)]+1)
         oneCycleCurrent$time_ms <- (oneCycleCurrent$sampleNumber / wave_parameters$samplingRate) * 1e3
         
         plot <- ggplot(data=oneCycleCurrent[index,], aes(x=time_ms, y=currentWave)) +
