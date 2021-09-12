@@ -95,11 +95,21 @@ NMES_power <- function(methodRMS,i_amp,pulseWidth_PW,cycleDuration,electrodeArea
     
     # Surface area
     I_rms_oneCycleCurrent_per_area <- I_rms_oneCycleCurrent / electrodeArea
+    I_rms_oneCycleCurrent_per_area_mm <- I_rms_oneCycleCurrent / (electrodeArea*100)
+    
+    # Phase Charge
+    phase_charge <- i_amp * pulseWidth_PW
+    
+    # Phase Charge density
+    phase_charge_density <- phase_charge / electrodeArea
     
     # Formatting the output as dataframe
     power_surface <- data.frame (I_rms  = I_rms_oneCycleCurrent,
                                  PWM_dutyCycleAverageCurrent = PWM_dutyCycleAverageCurrent,
-                                 I_rms_per_area = I_rms_oneCycleCurrent_per_area
+                                 I_rms_per_area = I_rms_oneCycleCurrent_per_area,
+                                 I_rms_per_area_mm2 = I_rms_oneCycleCurrent_per_area_mm,
+                                 phase_charge <- phase_charge,
+                                 phase_charge_density <- phase_charge_density
                                 )
     return(power_surface)
 }
@@ -188,7 +198,23 @@ ui <- fluidPage(
                           p("I_rms per electrode area [mA/cm2]:"),
                           verbatimTextOutput("I_rms_per_area_out"),
                           p()
-                        )
+                        ),
+                   column(3,
+                          p("I_rms per electrode area [mA/mm2]:"),
+                          verbatimTextOutput("I_rms_per_area_mm2_out"),
+                          p()
+                   ),
+                   
+                   column(3,
+                          p("Phase charge [C/phase]:"),
+                          verbatimTextOutput("phase_charge_out"),
+                          p()
+                   ),
+                   column(3,
+                          p("Phase charge density [C/cm2/phase]:"),
+                          verbatimTextOutput("phase_charge_density_out"),
+                          p()
+                   )
                ),
 
                fluidRow(
@@ -259,6 +285,33 @@ server <- function(input, output) {
         oneCycleCurrent <- waves[[2]]
         power_surface <- NMES_power(input$methodRMS_rb,wave_parameters$i_amp,wave_parameters$pulseWidth_PW,wave_parameters$cycleDuration,wave_parameters$electrodeArea,wave_parameters$samplingRate,wave_parameters$pulseTrainDuration_PT,oneCycleCurrent)
         power_surface$I_rms_per_area
+    })
+    
+    output$I_rms_per_area_mm2_out <- renderPrint({
+        wave_parameters <- precalculation()
+        waves <- constructNMESwave(wave_parameters)
+        currentWave_df <- waves[[1]]
+        oneCycleCurrent <- waves[[2]]
+        power_surface <- NMES_power(input$methodRMS_rb,wave_parameters$i_amp,wave_parameters$pulseWidth_PW,wave_parameters$cycleDuration,wave_parameters$electrodeArea,wave_parameters$samplingRate,wave_parameters$pulseTrainDuration_PT,oneCycleCurrent)
+        power_surface$I_rms_per_area_mm2
+    })
+    
+    output$phase_charge_out <- renderPrint({
+        wave_parameters <- precalculation()
+        waves <- constructNMESwave(wave_parameters)
+        currentWave_df <- waves[[1]]
+        oneCycleCurrent <- waves[[2]]
+        power_surface <- NMES_power(input$methodRMS_rb,wave_parameters$i_amp,wave_parameters$pulseWidth_PW,wave_parameters$cycleDuration,wave_parameters$electrodeArea,wave_parameters$samplingRate,wave_parameters$pulseTrainDuration_PT,oneCycleCurrent)
+        power_surface$phase_charge
+    })
+    
+    output$phase_charge_density_out <- renderPrint({
+        wave_parameters <- precalculation()
+        waves <- constructNMESwave(wave_parameters)
+        currentWave_df <- waves[[1]]
+        oneCycleCurrent <- waves[[2]]
+        power_surface <- NMES_power(input$methodRMS_rb,wave_parameters$i_amp,wave_parameters$pulseWidth_PW,wave_parameters$cycleDuration,wave_parameters$electrodeArea,wave_parameters$samplingRate,wave_parameters$pulseTrainDuration_PT,oneCycleCurrent)
+        power_surface$phase_charge_density
     })
     
     output$NMESplotTrain <- renderPlotly({ # renderPlotly vs renderPlot
