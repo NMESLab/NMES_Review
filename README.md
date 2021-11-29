@@ -1,4 +1,4 @@
-# Korblab NMES Review
+# NMES Review
 A collection of any program related to the NMES review paper
 
 ## How to use the first time
