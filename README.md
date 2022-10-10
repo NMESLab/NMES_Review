@@ -9,11 +9,11 @@ A collection of any program related to the NMES review paper
   - If you are not comfortable using the command line try using [Sourcetree](https://www.sourcetreeapp.com/)
 
 ```
-git clone https://github.com/KorbLab/Korblab_NMES_Review.git
+git clone git@github.com:NMESLab/NMES_Review.git
 ```
 
 2. The command in 1) will create a new folder with the repository inside. </br>
-Go to that folder using the change directory command ```cd Korblab_NMES_Review``` in the terminal.
+Go to that folder using the change directory command ```cd NMESLab/NMES_Review``` in the terminal.
 
 3. You can modify and create files there.
   - Please do not create many versions of the same file, just modify the file you want to modify. </br>
@@ -52,7 +52,7 @@ git push
 - It is best practice to "pull" changes others "pushed" online to your local machine every day before you start working.
 
 ```
-cd path/to/Korblab_NMES_Review
+cd path/to/NMES_Review
 git pull
 ```
 
